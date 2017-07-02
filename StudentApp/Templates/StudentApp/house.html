@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<p><a class="btn btn-default" href="{% url 'StudentApp:school' %}">Schools</a></p>
+
+<table class="table">
+    {% for house in object.houses.all %}
+
+        <tr><td><a href="{% url 'StudentApp:student' object.slug house.slug %}"> {{house.house_name}}</a></td>
+            <td>{{ house.students.count }}</td></tr>
+
+    {% endfor %}
+</table>
+
+{% endblock %}
+
+

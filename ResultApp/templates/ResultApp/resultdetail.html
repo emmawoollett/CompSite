@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<p><a class="btn btn-default" href="{% url 'ResultApp:resultindex' %}">Competitions</a></p>
+
+<table class="table">
+
+    {% for row in table %}
+        <tr>
+        {% for col in row %}
+            <td>{{ col }}</td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+
+</table>
+
+<p><a class="btn btn-default" href="{% url 'ResultApp:student-analysis' competition.slug %}">Student Analysis</a>
+<a class="btn btn-default" href="{% url 'ResultApp:house-analysis' competition.slug %}">House Analysis</a></p>
+
+{% endblock %}

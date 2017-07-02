@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<p><a class="btn btn-default" href="{% url 'home' %}">Home</a></p>
+<table class="table">
+    <tr><td>Competition</td>
+        <td>Date</td></tr>
+
+    {% for competition in object_list %}
+
+        <tr><td><a href="{% url 'ResultApp:resultdetail' competition.slug %}">{{competition.competition_name}}</a></td>
+            <td>{{ competition.competition_date }}</td></tr>
+
+    {% endfor %}
+
+{% endblock %}

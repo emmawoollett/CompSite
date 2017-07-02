@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<p><a class="btn btn-default" href="{% url 'CompApp:detail' event.competition.slug %}">Competition Events</a></p>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+        <table>
+            {% for form in formset %}
+                <tr>
+                {% for field in form %}
+                    <td>
+                    {{ field.errors }}
+                    {% if not field.is_hidden %}
+                    {{ field.label_tag }}
+                    {% endif %}
+                    {{ field }}
+                    </td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        <input type="submit" value="Submit"/>
+    </form>
+<br>
+<p><a class="btn btn-default" href="{% url 'ResultApp:print-event-result' event.get_event_type event.slug %}">Print</a></p>
+
+{% endblock %}
+{% block footer %}
+    {{ formset.0.media }}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<p><a class="btn btn-default" href="{% url 'ResultApp:resultdetail' competition.slug %}">Results Table</a></p>
+
+{% for house in student_winners %}
+    <p>{{ house.0 }}</p>
+    <ul>
+    {% for student in house.1 %}
+        <li><strong>{{ student }}</strong> -
+            {% for event in student.winner_events %}
+            {{ event }},
+            {% endfor %}</li>
+    {% endfor %}
+    </ul>
+{% endfor %}
+
+{% endblock %}

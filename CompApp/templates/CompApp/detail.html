@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<p><a class="btn btn-default" href="{% url 'CompApp:index' %}">Competitions</a></p>
+<table class="table">
+<tr><td>Competition</td><td>{{ object.competition_name }}</td></tr>
+<tr><td>Date</td><td>{{ object.competition_date }}</td></tr>
+</table>
+
+<div class="row">
+{% for event in object.get_all_events %}
+    <div class="col-md-2"><a href="{% url 'ResultApp:event-result' event.get_event_type event.slug %}">{{ event }}</a></div>
+    <div class="col-md-1"><a class="btn btn-primary btn-xs" href="{% url 'CompApp:delete-event' event.pk event.get_event_type %}">Delete Event</a></div>
+{% endfor %}
+</div>
+<br>
+<a class="btn btn-primary" href="{% url 'CompApp:event' competition.slug 'CrossCountry' %}">Add Cross Country Event</a>
+<a class="btn btn-primary" href="{% url 'CompApp:event' competition.slug 'TrackEvent' %}">Add Track Event</a>
+<a class="btn btn-primary" href="{% url 'CompApp:event' competition.slug 'TrackRelay' %}">Add Track Relay Event</a>
+<a class="btn btn-primary" href="{% url 'CompApp:event' competition.slug 'FieldEvent' %}">Add Field Event</a>
+<a class="btn btn-primary" href="{% url 'CompApp:event' competition.slug 'Swimming' %}">Add Swimming Event</a>
+<a class="btn btn-primary" href="{% url 'CompApp:event' competition.slug 'SwimmingRelay' %}">Add Swimming Relay Event</a>
+
+{% endblock %}

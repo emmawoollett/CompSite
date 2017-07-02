@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<p><a class="btn btn-default" href="{% url 'CompApp:index' %}">Competitions</a></p>
+<p><a class="btn btn-default" href="{% url 'StudentApp:school' %}">Student Listing</a></p>
+<p><a class="btn btn-default" href="{% url 'ResultApp:resultindex' %}">Results</a></p>
+
+{% endblock %}
