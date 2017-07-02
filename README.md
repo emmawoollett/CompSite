@@ -1,0 +1,2 @@
+# CompSite
+Competitions App
