@@ -46,6 +46,7 @@ class Event(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['year_group', 'gender']
 
     def get_event_type(self):
         return self.__class__.__name__

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static duration_tags %}
 {% block content %}
+
 <p><a class="btn btn-default" href="{% url 'CompApp:detail' event.competition.slug %}">Competition Events</a></p>
 <br>
 <h1>{{ event }}</h1>
@@ -10,12 +11,24 @@
         {% for item in headers %}
             <th>{{ item }}</th>
         {% endfor %}
+        <th></th>
     </tr>
-    {% for result in event_results %}
+    {% for result in event_results%}
     <tr>
-    <td>{{ result.house_points }}</td>
-    <td>{{ result.student }}{{ result.house }}</td>
-    <td>{{ result.time|time:'i:s.u' }}{{ result.distance }}</td>
+        <td>{% if result.event.track_choice == 'Heats' %}
+                {% if lane_draw %}
+                    {{ lane_draw.pop }}
+                {% endif %}
+            {% else %}
+                {{ result.house_points | floatformat }}
+            {% endif %}
+        </td>
+        <td>{{ result.student.house }}</td>
+        <td>{{ result.student }}{{ result.house }}</td>
+        <td>{{ result.time | duration }}{{ result.distance | floatformat:2}}</td>
+        <td>{% if result.record_check == True %}
+            Record Breaker
+            {% endif %}</td>
     </tr>
     {% endfor %}
 </table>

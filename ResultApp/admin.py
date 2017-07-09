@@ -1,3 +1,4 @@
+
 from django.contrib import admin
 from .models import *
 
@@ -43,9 +44,30 @@ class SwimmingRelayResultAdmin(admin.ModelAdmin):
     list_filter = ['event']
     search_fields = ['house']
 
+
+class TrackEventRecordAdminInline(admin.TabularInline):
+    model = TrackEventRecord
+
+
+class FieldEventRecordAdminInline(admin.TabularInline):
+    model = FieldEventRecord
+
+
+class TrackRelayRecordAdminInline(admin.TabularInline):
+    model = TrackRelayRecord
+
+
+class RecordsAdmin(admin.ModelAdmin):
+    model = RecordModel
+    inlines = [TrackEventRecord, FieldEventRecord, TrackRelayRecord]
+
+
 admin.site.register(CrossCountryResult, CrossCountryResultAdmin)
 admin.site.register(TrackEventResult, TrackEventResultAdmin)
 admin.site.register(FieldEventResult, FieldEventResultAdmin)
 admin.site.register(SwimmingResult, SwimmingResultAdmin)
 admin.site.register(TrackRelayResult, TrackRelayResultAdmin)
 admin.site.register(SwimmingRelayResult, SwimmingRelayResultAdmin)
+admin.site.register(TrackEventRecord)
+admin.site.register(FieldEventRecord)
+admin.site.register(TrackRelayRecord)

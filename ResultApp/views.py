@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from .forms import *
 from StudentApp.models import House
 from .models import ResultsModels, RelayResultModels
-from CompApp.models import Event
+from CompApp.models import Event, TrackEvent
 import CompApp
 
 
@@ -24,17 +24,17 @@ class ResultDetailView(generic.DetailView):
         context = super(ResultDetailView, self).get_context_data(**kwargs)
         competition = self.get_object()
         houses = House.objects.all()
-        junior_boys = self.get_results(
-            competition, [Student.YEAR_7, Student.YEAR_8, Student.YEAR_9], [Event.BOYS], houses
+        junior_boys = self.get_results(competition, [Event.YEAR_7, Event.YEAR_8], [Event.BOYS], houses)
+        junior_girls = self.get_results(competition, [Event.YEAR_7, Event.YEAR_8,], [Event.GIRLS], houses)
+        senior_boys = self.get_results(
+            competition, [Event.YEAR_9, Event.YEAR_10, Event.YEAR_11], [Event.BOYS], houses
         )
-        junior_girls = self.get_results(
-            competition, [Student.YEAR_7, Student.YEAR_8, Student.YEAR_9], [Event.GIRLS], houses
+        senior_girls = self.get_results(
+            competition, [Event.YEAR_9, Event.YEAR_10, Event.YEAR_11], [Event.GIRLS], houses
         )
-        senior_boys = self.get_results(competition, [Student.YEAR_10, Student.YEAR_11], [Event.BOYS], houses)
-        senior_girls = self.get_results(competition, [Student.YEAR_10, Student.YEAR_11], [Event.GIRLS], houses)
         overall = self.get_results(
             competition,
-            [Student.YEAR_7, Student.YEAR_8, Student.YEAR_9, Student.YEAR_10, Student.YEAR_11],
+            [Event.YEAR_7, Event.YEAR_8, Event.YEAR_9, Event.YEAR_10, Event.YEAR_11],
             [Event.BOYS, Event.GIRLS], houses
         )
         table = [
@@ -108,28 +108,22 @@ class StudentResultDetailView(generic.DetailView):
     def get_students(self, competition, years, gender):
         top_students = {}
         for model in ResultsModels:
-            print(model)
-            print(years)
             results = model.objects.filter(
                 event__year_group__in=years, student__gender=gender, event__competition=competition
             )
             top_results = results.values('student').annotate(
                 house_points=Sum('house_points')
             ).order_by('-house_points')
-            print(top_results)
             for top_result in top_results:
                 house_points = top_result['house_points']
                 student = top_result['student']
                 running_total = top_students.get(student, 0)
                 running_total+=house_points
                 top_students[student]=running_total
-        print(top_students)
         top_five_students = sorted(top_students, key=lambda s: top_students[s], reverse=True)[0:5]
-        print(top_five_students)
         top_five_student_tuple = [
             (Student.objects.get(id=student_id), top_students[student_id]) for student_id in top_five_students
         ]
-        print(top_five_student_tuple)
         return top_five_student_tuple
 
 
@@ -177,6 +171,11 @@ class EventResultCreate(generic.TemplateView):
 
         for form in formset:
             form.fields['event'].initial = event
+            if 'time' in form.fields:
+                form.fields['time'].widget.attrs['tabindex'] = 2
+            if 'distance' in form.fields:
+                form.fields['distance'].widget.attrs['tabindex'] = 2
+            form.fields['house_points'].widget.attrs['tabindex'] = 3
 
         return render(request, self.template_name, {'formset': formset, 'event': event})
 
@@ -207,27 +206,34 @@ class EventResultPrint(generic.TemplateView):
         model_class = self.get_model_class(**kwargs)
         event_slug = kwargs['event_slug']
         event = model_class.objects.get(slug=event_slug)
+        lane_draw = [1, 8, 2, 7, 3, 6, 4, 5]
         if model_class == CrossCountry:
             event_results = CrossCountryResult.objects.filter(event=event)
-            headers = ['House points', 'Name', 'Position']
+            headers = ['House points','', 'Name', 'Position']
         elif model_class == TrackEvent:
             event_results = TrackEventResult.objects.filter(event=event)
-            headers = ['House points', 'Name', 'Time']
+            if event.track_choice == TrackEvent.HEATS:
+                headers = ['Lane draw', 'House', 'Name', 'Time']
+            else:
+                headers = ['House points', 'House', 'Name', 'Time']
         elif model_class == FieldEvent:
             event_results = FieldEventResult.objects.filter(event=event)
-            headers = ['House points', 'Name', 'Distance']
+            headers = ['House points', 'House', 'Name', 'Distance']
         elif model_class == TrackRelay:
             event_results = TrackRelayResult.objects.filter(event=event)
-            headers = ['House points', 'House', 'Time']
+            headers = ['House points','','House', 'Time']
         elif model_class == Swimming:
             event_results = SwimmingResult.objects.filter(event=event)
-            headers = ['House points', 'Name', 'Time']
+            headers = ['House points', 'House', 'Name', 'Time']
         elif model_class == SwimmingRelay:
             event_results = SwimmingRelayResult.objects.filter(event=event)
-            headers = ['House points', 'House', 'Time']
+            headers = ['House points','','House', 'Time']
         else:
             raise Http404
-        return render(request, self.template_name, {'event': event, 'event_results':event_results, 'headers':headers})
+        return render(
+            request, self.template_name,
+            {'event': event, 'event_results':event_results, 'headers':headers, 'lane_draw':lane_draw}
+        )
 
     def get_model_class(self, **kwargs):
         event_type = kwargs['event_type']

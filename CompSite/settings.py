@@ -126,6 +126,8 @@ STATIC_URL = '/static/'
 
 TIME_INPUT_FORMATS = ('%M:%S.%f',)
 
+DATE_INPUT_FORMATS = ('%d-%m-%Y',)
+
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
