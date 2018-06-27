@@ -102,3 +102,8 @@ ENV/
 
 #databases
 db.*
+
+# PyCharm
+.idea/
+
+*.DS_Store
