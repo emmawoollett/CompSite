@@ -18,6 +18,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from . import views
 
+admin.site.site_header = settings.ADMIN_SITE_HEADER
+
 urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name='home'),
     url(r'^admin/', admin.site.urls),

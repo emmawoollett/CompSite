@@ -1,11 +1,34 @@
 from django.db import models
 from django_extensions.db.fields import AutoSlugField
+from django.core.validators import validate_comma_separated_integer_list
+
+BOYS = 'M'
+GIRLS = 'F'
+
+YEAR_7 = '07'
+YEAR_8 = '08'
+YEAR_9 = '09'
+YEAR_10 = '10'
+YEAR_11 = '11'
+
+YEAR_GROUP_MAPPING = {'7': YEAR_7, '8': YEAR_8, '9': YEAR_9, '10': YEAR_10, '11': YEAR_11}
 
 
 class Competition(models.Model):
     slug = models.SlugField(default='competition_name')
     competition_name = models.CharField(max_length=200)
     competition_date = models.DateField()
+    junior_year_groups = models.CharField(validators=[validate_comma_separated_integer_list], max_length=30,
+                                          default='7,8')
+
+    def get_junior_year_groups(self):
+        junior_year_groups_list = self.junior_year_groups.split(',')
+        return [YEAR_GROUP_MAPPING[i] for i in junior_year_groups_list]
+
+    def get_senior_year_groups(self):
+        junior_year_groups_list = self.junior_year_groups.split(',')
+        all_years = YEAR_GROUP_MAPPING.keys()
+        return [YEAR_GROUP_MAPPING[i] for i in all_years if i not in junior_year_groups_list]
 
     def __str__(self):
         return self.competition_name
@@ -26,15 +49,8 @@ class Competition(models.Model):
 
 class Event(models.Model):
     slug = AutoSlugField(populate_from=['competition', 'year_group', 'gender'])
-    BOYS = 'M'
-    GIRLS = 'F'
     GENDER_CHOICES = ((BOYS, 'Boys'), (GIRLS, 'Girls'))
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default=None)
-    YEAR_7 = '07'
-    YEAR_8 = '08'
-    YEAR_9 = '09'
-    YEAR_10 = '10'
-    YEAR_11 = '11'
     YEAR_CHOICES = (
         (YEAR_7, 'Year 7'),
         (YEAR_8, 'Year 8'),

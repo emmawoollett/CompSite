@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Sum
 from django.http import Http404
 from django.views import generic
@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from .forms import *
 from StudentApp.models import House
 from .models import ResultsModels, RelayResultModels
-from CompApp.models import Event, TrackEvent
+from CompApp.models import Event, TrackEvent, BOYS, GIRLS, YEAR_7, YEAR_8, YEAR_9, YEAR_10, YEAR_11
 import CompApp
 
 
@@ -23,19 +23,21 @@ class ResultDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(ResultDetailView, self).get_context_data(**kwargs)
         competition = self.get_object()
+        junior_year_groups = competition.get_junior_year_groups()
+        senior_year_groups = competition.get_senior_year_groups()
         houses = House.objects.all()
-        junior_boys = self.get_results(competition, [Event.YEAR_7, Event.YEAR_8], [Event.BOYS], houses)
-        junior_girls = self.get_results(competition, [Event.YEAR_7, Event.YEAR_8,], [Event.GIRLS], houses)
+        junior_boys = self.get_results(competition, junior_year_groups, [BOYS], houses)
+        junior_girls = self.get_results(competition, junior_year_groups, [GIRLS], houses)
         senior_boys = self.get_results(
-            competition, [Event.YEAR_9, Event.YEAR_10, Event.YEAR_11], [Event.BOYS], houses
+            competition, senior_year_groups, [BOYS], houses
         )
         senior_girls = self.get_results(
-            competition, [Event.YEAR_9, Event.YEAR_10, Event.YEAR_11], [Event.GIRLS], houses
+            competition, senior_year_groups, [GIRLS], houses
         )
         overall = self.get_results(
             competition,
-            [Event.YEAR_7, Event.YEAR_8, Event.YEAR_9, Event.YEAR_10, Event.YEAR_11],
-            [Event.BOYS, Event.GIRLS], houses
+            junior_year_groups + senior_year_groups,
+            [BOYS, GIRLS], houses
         )
         table = [
             ['', 'Roman', 'Trojan', 'Spartan'],
@@ -46,6 +48,7 @@ class ResultDetailView(generic.DetailView):
             ['Overall', overall['Roman'], overall['Trojan'], overall['Spartan']],
         ]
         context['table'] = table
+
         return context
 
     def get_results(self, competition, years, genders, houses):
@@ -83,14 +86,14 @@ class StudentResultDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(StudentResultDetailView, self).get_context_data(**kwargs)
         competition = self.get_object()
-        year_7_boys = self.get_students(competition, [Event.YEAR_7], Student.BOYS)
-        year_7_girls = self.get_students(competition, [Event.YEAR_7], Student.GIRLS)
-        year_8_boys = self.get_students(competition, [Event.YEAR_8], Student.BOYS)
-        year_8_girls = self.get_students(competition, [Event.YEAR_8], Student.GIRLS)
-        year_9_boys = self.get_students(competition, [Event.YEAR_9], Student.BOYS)
-        year_9_girls = self.get_students(competition, [Event.YEAR_9], Student.GIRLS)
-        senior_boys = self.get_students(competition, [Event.YEAR_10, Event.YEAR_11], Student.BOYS)
-        senior_girls = self.get_students(competition, [Event.YEAR_10, Event.YEAR_11], Student.GIRLS)
+        year_7_boys = self.get_students(competition, [YEAR_7], Student.BOYS)
+        year_7_girls = self.get_students(competition, [YEAR_7], Student.GIRLS)
+        year_8_boys = self.get_students(competition, [YEAR_8], Student.BOYS)
+        year_8_girls = self.get_students(competition, [YEAR_8], Student.GIRLS)
+        year_9_boys = self.get_students(competition, [YEAR_9], Student.BOYS)
+        year_9_girls = self.get_students(competition, [YEAR_9], Student.GIRLS)
+        senior_boys = self.get_students(competition, [YEAR_10, YEAR_11], Student.BOYS)
+        senior_girls = self.get_students(competition, [YEAR_10, YEAR_11], Student.GIRLS)
 
         def div_students(year_gender):
             return mark_safe(''.join(['<div> %s - %s </div>' % student for student in year_gender]))

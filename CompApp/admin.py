@@ -34,7 +34,7 @@ class SwimmingRelayInline(admin.TabularInline):
 
 class CompetitionAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('competition_name',)}
-    fields = ['competition_name', 'competition_date', 'slug']
+    fields = ['competition_name', 'competition_date', 'slug', 'junior_year_groups']
     list_display = ('competition_name', 'competition_date')
     list_filter = ['competition_date']
     search_fields = ['competition_name']
